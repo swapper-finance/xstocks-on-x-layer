@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Inter Display";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/InterDisplay-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter Display";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./assets/fonts/InterDisplay-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./assets/fonts/InterDisplay-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./assets/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+}
+
+@layer base {
+  html {
+    /* Same OpenType set the portal and the landing page run (Inter Display):
+       Square Punctuation (ss07), Square Quotes (ss08),
+       Alternate One (cv01), Open Six (cv03), Open Nine (cv04) */
+    font-feature-settings: "ss07" on, "ss08" on, "cv01" on, "cv03" on,
+      "cv04" on;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-lp-surface-base font-sans text-lp-text antialiased;
+  }
+
+  /* Tabular figures wherever a number is going to change in place — prices,
+     the ticker, the wallet balance. Without this the row reflows on every
+     tick because glyph widths differ. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* 1px gradient border that follows border-radius (Figma gradient strokes). */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(
+      --gb,
+      linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.02) 51%,
+        rgba(255, 255, 255, 0.04) 100%
+      )
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Display headings are a top-down metallic wash, not flat white */
+  .text-metallic {
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      rgba(248, 248, 248, 0.6) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* The hairline pill behind eyebrow chips */
+  .chip-bar {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(255, 255, 255, 0.01) 49.5%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Both edges of a marquee fade into the page */
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      #000 12%,
+      #000 88%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      #000 12%,
+      #000 88%,
+      transparent 100%
+    );
+  }
+  .marquee-track {
+    width: max-content;
+  }
+
+  /* The 1px grain the navbar and the hero plate wear over their blur. Kept
+     as a variable so both layers read the same texture. */
+  :root {
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--grain);
+    background-size: 128px 128px;
+    opacity: 0.12;
+    mix-blend-mode: overlay;
+  }
+
+  /* The bloom behind the hero and the CCIP card: a wide, very soft radial
+     that colour-dodges the base rather than painting over it, so the plate
+     underneath still reads as one surface. */
+  .bloom {
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(132, 102, 255, 0.5) 0%,
+      rgba(132, 102, 255, 0) 100%
+    );
+    filter: blur(96px);
+    mix-blend-mode: color-dodge;
+    pointer-events: none;
+  }
+  .bloom-settled {
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(31, 207, 155, 0.45) 0%,
+      rgba(31, 207, 155, 0) 100%
+    );
+  }
+
+  /* The xStock grid fades out at the bottom while it is collapsed, so the
+     cut edge reads as "more below" rather than as the end of the list. */
+  .grid-fade {
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 74%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 74%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+  }
+}
+
+/* Deliberately outside @layer, so it lands after utilities */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  [class*="animate-m-"],
+  [class*="animate-route-"],
+  .animate-card-rise,
+  .animate-tick-flash {
+    animation: none;
+  }
+}
