@@ -66,9 +66,9 @@ open doesn't visibly settle from the SDK's 560px default.
 Everything lives in [`src/config.ts`](src/config.ts).
 
 ```ts
-integratorId: "caf78ffbf6270857cbc9"
+integratorId: "97913d689a12694325cc"
 dstChainId:   "196"                                          // X Layer
-dstTokenAddr: "0xa8ddb5cd96b5222afe198316e9a57caa642850d5"   // NVDAx, default
+dstTokenAddr: "0xc845b2894dbddd03858fd2d643b4ef725fe0849d"   // NVDAx, default
 depositWalletAddress: <the connected wallet>
 ```
 
@@ -105,13 +105,12 @@ are here so the on-chain side of a demo deposit can be read back.
   three `depositOption`s, and how each one reads on the receipt.
 - `src/data/bridges.ts` — CCIP and CCTP, and the four steps the router takes.
 
-### Symbols are unwrapped
+### Native tokens, not wrapped
 
-X Layer's xStocks are bridged, so the API returns them as `wNVDAx` /
-"Wrapped NVIDIA xStock". The generator strips that wrapper for display —
-the address is untouched and is exactly that token, but "Wrapped" in front
-of every tile is noise a visitor gains nothing from. `image` keeps the API's
-filename, which is a real asset path and does carry the `w`.
+The addresses are the native X Layer xStocks. An earlier source listed the
+bridged `wNVDAx` / "Wrapped NVIDIA xStock" versions instead, which are the
+wrong tokens to settle into. `image` is still the API's value as is; some
+filenames still name the old wrapped token, but they are real asset paths.
 
 ### Prices are live, the rest of the badge isn't
 

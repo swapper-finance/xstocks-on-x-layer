@@ -6,20 +6,18 @@
    /api/tokenPrices (see src/lib/tokenPrices.ts). A baked-in price drifts,
    and this one did — 26 of the 43 ended up more than 20% off the feed.
 
-   On X Layer the xStocks are bridged, so the API returns them as `wNVDAx` /
-   "Wrapped NVIDIA xStock". The page strips that wrapper — the address is the
-   API's, but "Wrapped" in front of every tile is noise the visitor gains
-   nothing from. Only `symbol` and `name` are rewritten; `image` keeps the
-   API's filename, which is a real asset path and does carry the `w`. */
+   The source is the X Layer document from the Swapper chains collection
+   (an array holding the chain-196 entry). Its xStocks are the native X Layer
+   tokens — an earlier source listed the wrapped `wNVDAx` versions, whose
+   addresses were wrong to settle into. `image` is still the API's value as
+   is; its filename may name the old wrapped token, but it is a real asset. */
 import { readFileSync, writeFileSync } from "node:fs";
 
-const SRC = "C:/Users/Krzysztof/Downloads/chains xlayer.json";
-const OUT =
-  "C:/Users/Krzysztof/Documents/Repositories/swapper/swapper-okx-dev-day/src/data/xstocks.ts";
+const SRC = "C:/Users/krzys/Downloads/Telegram Desktop/swapper-prod.chains-xlayer.json";
+const OUT = new URL("../src/data/xstocks.ts", import.meta.url);
 
 /* symbol -> [sector, indicative 24h % change]. Price is NOT here — it
-   comes from the live feed at runtime.
-   Keyed on the unwrapped symbol, i.e. what the page actually shows. */
+   comes from the live feed at runtime. */
 const META = {
   NVDAx: ["Semiconductors", 1.84],
   AAPLx: ["Consumer Tech", 0.42],
@@ -79,24 +77,11 @@ const FEATURED = [
   "METAx",
 ];
 
-/* "Wrapped NVIDIA xStock" / "wNVDAx" -> "NVIDIA xStock" / "NVDAx". The `w`
-   only comes off a symbol whose name was actually wrapped, so a token that
-   happens to start with one (MIXUx does not, but the next listing might) is
-   left alone. */
-const WRAPPED = /^Wrapped /;
-const unwrap = (token) =>
-  WRAPPED.test(token.name)
-    ? {
-        ...token,
-        name: token.name.replace(WRAPPED, ""),
-        symbol: token.symbol.replace(/^w/, ""),
-      }
-    : token;
-
-const { destinationChain } = JSON.parse(readFileSync(SRC, "utf8"));
-const raw = destinationChain.tokens
-  .filter((t) => t.name.includes("xStock"))
-  .map(unwrap);
+const chain = JSON.parse(readFileSync(SRC, "utf8")).find(
+  (c) => c.chainId === "196"
+);
+if (!chain) throw new Error("no X Layer (196) entry in source");
+const raw = chain.tokens.filter((t) => t.name.includes("xStock"));
 
 const missing = raw.filter((t) => !META[t.symbol]).map((t) => t.symbol);
 if (missing.length) throw new Error(`no META for: ${missing.join(", ")}`);
@@ -132,10 +117,8 @@ writeFileSync(
   `/* The ${raw.length} xStocks Swapper can settle into on X Layer, taken from the
    chains response — address, decimals and logo are the API's own values.
 
-   \`symbol\` and \`name\` are the API's with the bridge wrapper taken off:
-   X Layer lists them as \`wNVDAx\` / "Wrapped NVIDIA xStock", and the address
-   below is exactly that token. The page shows \`NVDAx\` / "NVIDIA xStock"
-   because the wrapper tells the visitor nothing they can act on.
+   These are the native X Layer xStocks, not the wrapped \`wNVDAx\` tokens
+   an earlier source listed.
 
    There is no \`price\` field: the grid reads prices at runtime from
    /api/tokenPrices via src/lib/tokenPrices.ts, which is the same feed the
@@ -148,9 +131,9 @@ writeFileSync(
    Generated; edit the generator rather than this file. */
 
 export type XStock = {
-  /** "NVDAx" — the API's \`wNVDAx\` without the bridge wrapper */
+  /** "NVDAx" */
   symbol: string;
-  /** "NVIDIA xStock" — likewise, without the "Wrapped " prefix */
+  /** "NVIDIA xStock" */
   name: string;
   /** "NVIDIA" — the name without the xStock suffix, for headings */
   company: string;
