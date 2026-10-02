@@ -17,11 +17,11 @@ export const TARGET_CHAIN = {
   icon: xlayer,
 };
 
-export const INTEGRATOR_ID = "caf78ffbf6270857cbc9";
+export const INTEGRATOR_ID = "97913d689a12694325cc";
 
 /** The xStock the page opens on — NVIDIA, on X Layer. */
 export const DEFAULT_TOKEN_ADDRESS =
-  "0xa8ddb5cd96b5222afe198316e9a57caa642850d5";
+  "0xc845b2894dbddd03858fd2d643b4ef725fe0849d";
 
 /** Matches the landing page's palette, so the widget doesn't read as a
     third-party panel dropped on top of the page. */
