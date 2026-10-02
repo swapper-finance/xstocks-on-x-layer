@@ -1,5 +1,18 @@
 import type { Eip1193Provider } from "./types";
 
+/* Any numeric form the widget or an adapter may hand over — decimal string,
+   0x-hex string, number, bigint, or an ethers BigNumber (via toString) — as
+   the minimal 0x-hex quantity JSON-RPC expects. Empty values become
+   undefined so the field is dropped rather than sent as zero. */
+const toQuantity = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const big =
+    typeof value === "bigint"
+      ? value
+      : BigInt(typeof value === "number" ? Math.trunc(value) : String(value));
+  return `0x${big.toString(16)}`;
+};
+
 /* Bridges the EIP-1193 provider this app connects to into something the
    Swapper SDK can drive, so the widget reuses the wallet already connected
    on the page instead of asking for one of its own.
@@ -45,14 +58,20 @@ export class Eip1193Signer {
   async sendTransaction(tx: Record<string, unknown>): Promise<{ hash: string }> {
     /* eth_sendTransaction answers with the hash itself; the v5 adapter reads
        `.hash` off whatever comes back, so it is wrapped here. Undefined
-       fields are dropped — some wallets reject an explicit `value: undefined`. */
+       fields are dropped — some wallets reject an explicit `value: undefined`.
+
+       The widget sends `value` and `gasLimit` as decimal wei strings (what
+       an ethers signer or viem would parse), but JSON-RPC quantities are hex:
+       passed through raw, a wallet reads "1000000000000000" as
+       0x1000000000000000 and signs a wildly different amount and gas limit.
+       So both are normalized to 0x-prefixed hex quantities here. */
     const params = Object.fromEntries(
       Object.entries({
         from: this.address,
         to: tx.to,
         data: tx.data,
-        value: tx.value,
-        gas: tx.gasLimit,
+        value: toQuantity(tx.value),
+        gas: toQuantity(tx.gasLimit),
       }).filter(([, value]) => value !== undefined)
     );
 
