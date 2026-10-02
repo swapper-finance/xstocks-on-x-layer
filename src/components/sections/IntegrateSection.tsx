@@ -50,8 +50,8 @@ const IntegrateSection = () => {
 
   const snippet = `import { preloadSwapperModal } from "@swapper-finance/deposit-sdk";
 
-// On mount — builds the modal hidden and loads the widget in the
-// background, so the first open() is instant.
+// On connect — builds the modal hidden against the connected wallet
+// and loads the widget in the background, so the first open() is instant.
 const modal = preloadSwapperModal({
   integratorId: "${INTEGRATOR_ID}",
   dstChainId: "${DST_CHAIN_ID}",
@@ -60,8 +60,8 @@ const modal = preloadSwapperModal({
   styles: { themeMode: "dark" },
 });
 
-// On connect — the widget reuses this wallet instead of asking
-// for one of its own.
+// Then — the widget reuses this wallet instead of asking for one
+// of its own.
 modal.updateSigner(signer);
 
 // On click — the patch is applied to the live widget right before
@@ -95,7 +95,7 @@ modal.open({
             {[
               [
                 "preloadSwapperModal",
-                "Builds hidden and loads the widget up front. Smart-wallet authorization stays deferred until the first open, so visitors who never buy never get one.",
+                "Builds hidden and loads the widget as soon as a wallet connects, against that wallet. Smart-wallet authorization stays deferred until the first open, so visitors who never buy never get one.",
               ],
               [
                 "open(patch)",
@@ -147,7 +147,7 @@ modal.open({
               </Line>
               <Line>{" "}</Line>
               <Line>
-                <Comment>// On mount — hidden build + background load,</Comment>
+                <Comment>// On connect — hidden build + background load,</Comment>
               </Line>
               <Line>
                 <Comment>// so the first open() is instant.</Comment>
@@ -175,7 +175,7 @@ modal.open({
               <Line>{"});"}</Line>
               <Line>{" "}</Line>
               <Line>
-                <Comment>// On connect — the widget reuses this wallet.</Comment>
+                <Comment>// Then — the widget reuses this wallet.</Comment>
               </Line>
               <Line>modal.updateSigner(signer);</Line>
               <Line>{" "}</Line>

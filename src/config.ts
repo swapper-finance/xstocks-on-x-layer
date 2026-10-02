@@ -23,16 +23,6 @@ export const INTEGRATOR_ID = "caf78ffbf6270857cbc9";
 export const DEFAULT_TOKEN_ADDRESS =
   "0xa8ddb5cd96b5222afe198316e9a57caa642850d5";
 
-/* Where the xStocks land when nobody has connected a wallet. The widget
-   needs a destination at preload time, and preloading is the whole point of
-   `preloadSwapperModal` — so the page preloads against this and patches in
-   the real address on `open()` once the visitor connects.
-
-   Connecting replaces it. Nothing is ever sent here: the buy button is
-   disabled until a wallet is connected. */
-export const PLACEHOLDER_DEPOSIT_ADDRESS =
-  "0x0000000000000000000000000000000000000000";
-
 /** Matches the landing page's palette, so the widget doesn't read as a
     third-party panel dropped on top of the page. */
 export const WIDGET_STYLES = {

@@ -19,7 +19,6 @@ import {
   DST_CHAIN_ID,
   INTEGRATOR_ID,
   MODAL_STYLE,
-  PLACEHOLDER_DEPOSIT_ADDRESS,
   WIDGET_STYLES,
 } from "@/config";
 import type { XStock } from "@/data/xstocks";
@@ -67,19 +66,25 @@ export const SwapperProvider = ({
   const stocksRef = useRef(stocks);
   stocksRef.current = stocks;
 
-  /* Preload once, on mount: the modal is built hidden and the widget loads
-     its bundle, chains and token list in the background, so the first
-     open() is instant instead of a blank iframe the visitor watches boot.
-     Smart-wallet authorization stays deferred until that first open, so a
-     visitor who never buys never gets one. */
+  /* Preload only once a wallet is connected, against that wallet: the
+     modal is built hidden and the widget loads its bundle, chains and token
+     list in the background, so the first open() is instant instead of a
+     blank iframe the visitor watches boot. Waiting for the wallet means the
+     widget is never configured with anything but the visitor's own address
+     as the deposit destination — no placeholder, never the zero address.
+
+     Keyed on the address, so switching accounts rebuilds the widget for the
+     new one and disconnecting tears it down. Smart-wallet authorization
+     stays deferred until the first open, so a visitor who never buys never
+     gets one. */
   useEffect(() => {
+    if (!address) return;
+
     const modal = preloadSwapperModal({
       integratorId: INTEGRATOR_ID,
       dstChainId: DST_CHAIN_ID,
       dstTokenAddr: DEFAULT_TOKEN_ADDRESS,
-      /* Patched on every open() with the connected wallet — see buy(). The
-         buy button is disabled until then, so nothing is ever sent here. */
-      depositWalletAddress: PLACEHOLDER_DEPOSIT_ADDRESS,
+      depositWalletAddress: address,
       actionLabel: "buy",
       styles: WIDGET_STYLES,
       modalStyle: MODAL_STYLE,
@@ -105,7 +110,7 @@ export const SwapperProvider = ({
       modalRef.current = null;
       setReady(false);
     };
-  }, []);
+  }, [address]);
 
   /* Hand the page's wallet to the widget, so a visitor who already connected
      up top is not asked to connect a second time inside the modal — the
@@ -134,9 +139,10 @@ export const SwapperProvider = ({
     if (!modal || !depositWalletAddress) return;
 
     setSelected(stock);
-    /* Both the destination token and the deposit wallet changed since the
-       preload, so they ride in as a config patch — applied to the live
-       widget right before it becomes visible. */
+    /* The destination token may have changed since the preload, so it rides
+       in as a config patch — applied to the live widget right before it
+       becomes visible. The deposit wallet is re-sent as the connected
+       address so the widget can only ever open on the visitor's own. */
     modal.open({
       dstTokenAddr: stock.address,
       depositWalletAddress,
