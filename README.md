@@ -72,11 +72,11 @@ dstTokenAddr: "0xa8ddb5cd96b5222afe198316e9a57caa642850d5"   // NVDAx, default
 depositWalletAddress: <the connected wallet>
 ```
 
-Before a wallet is connected the preload runs against
-`PLACEHOLDER_DEPOSIT_ADDRESS` (the zero address) — the widget needs a
-destination at preload time, and preloading is the whole point. Connecting
-replaces it on `open()`, and the buy button stays disabled until then, so
-nothing is ever sent there.
+The widget is not preloaded until a wallet is connected — it is then built
+against that wallet's address, so `depositWalletAddress` is never a
+placeholder or the zero address. Switching accounts rebuilds it for the new
+one; disconnecting tears it down, and the buy button stays disabled until a
+wallet is connected and the preload has started.
 
 `CHAIN_EXPLORER` is OKLink's X Layer explorer, used for the receipt's
 transaction link when the widget's event doesn't carry an `explorerUrl` of
